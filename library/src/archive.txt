@@ -1,0 +1,66 @@
+store old code here, if it is necessary later.
+
+. code of AddAssign<&BigInt> for BigInt:
+
+        let a = &mut self.bytes;
+        let b = &rhs.bytes;
+
+        let mut t = 0;
+        let mut s: u8;
+        let (mut n, m) = (a.len(), b.len());
+
+        while m >  n {
+            a.push(0);
+            n += 1;
+        }
+        for i in 0..n {
+            if i < m {
+                s = a[i] + b[i] + t; 
+            } else {
+                s = a[i] + t;
+            }
+            t = s / 10;
+            a[i] = s % 10;
+        }
+        if t > 0 {
+            a.push(t);
+        }
+
+. code of SubAssign<&BigInt> for BigInt:
+
+        //checks underflown
+        if *self < *rhs {
+            *self = new("0");
+            return;
+        }
+
+        let a = &mut self.bytes;
+        let b = &rhs.bytes;
+
+        let (n, m) = (a.len(), b.len());
+        let mut t = 0i32;
+        let mut s: i32;
+
+        for i in 0..n {
+
+            if i < m {
+                s = a[i] as i32 - b[i] as i32 + t;
+            } else {
+                s = a[i] as i32 + t 
+            }
+
+            if s < 0 {
+                s += 10;
+                t = -1;
+
+            } else {
+                t = 0;
+            }
+            a[i] = s as u8;
+        }
+
+        let mut n = n;
+        while n > 1 && a[n - 1] == 0 {
+            a.pop().unwrap();
+            n -= 1;
+        }

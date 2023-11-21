@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "main",
+    "library",
+    "problem1_9",
+    "problem10_19",
+    "problem20_29",
+]
