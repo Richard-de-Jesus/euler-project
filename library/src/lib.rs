@@ -69,19 +69,24 @@ impl BigInt {
         }
         sum
     }
-    // get usize from BigInt.
+    // return absolute value.
+    pub fn abs(&self) -> BigInt {
+        let mut temp = self.clone();
+        temp.sign = true;
+        temp
+    } 
     
     // get digits in internal order(reversed).
-    pub fn raw_digits(&self) -> &Vec<u8> {
-        &self.bytes
-    }
+    pub fn raw_digits(&self) -> &Vec<u8> { &self.bytes }
     // get BigInt's digit in normal order.
     pub fn digits(&self) -> Vec<u8> {
 
         let mut temp = self.bytes.clone();
         temp.reverse();
         temp
-    } 
+    }
+    pub fn is_positive(&self) -> bool { self.sign }
+    pub fn is_negative(&self) -> bool { !self.sign }
 }
 
 impl PartialOrd for BigInt {
@@ -141,6 +146,7 @@ impl Shl<&BigInt> for &BigInt {
         }
 
         let right = 2u32.pow(rhs);
+        
         self * &BigInt::from_int(right)
     }
 }
@@ -235,17 +241,34 @@ impl SubAssign<&BigInt> for BigInt {
         
         // decimal is base 10.
         const BASE: i8 = 10;
-        // not supported for now.
-        if *self < *rhs {
-            *self = BigInt::from_int(0);
-            return;
+        let (s1, s2) = (self.sign, rhs.sign);
+
+
+        let a: &mut Vec<u8>;
+        let b: &Vec<u8>;
+        let mut copy: BigInt;
+        // if both are positive and rhs is greater.
+        // do rhs -= self and swap sign of self.
+        if *self < *rhs && (s1 && s2) {
+
+            copy = rhs.clone();
+            a = &mut copy.bytes;
+            b = &self.bytes;
+            self.sign = false;
+            
+            // if both are negative and self is greater.
+            // swap sign of self.
+        } else if *self > *rhs && !(s1 || s2) {
+            a = &mut self.bytes;
+            b = &rhs.bytes;
+            self.sign = true;
+
+        } else {
+            a = &mut self.bytes;
+            b = &rhs.bytes;
         }
 
-        let a = &mut self.bytes;
-        let b = &rhs.bytes;
-
-
-        if self.sign == rhs.sign {
+        if s1 == s2 {
 
             let mut borrow = 0i8;
             for i in 0..a.len() {
@@ -319,6 +342,7 @@ impl MulAssign<&BigInt> for BigInt {
         let one = vec![1u8];
         if *a == one {
             *a = b.clone();
+            return;
         }
         if *b == one {
             return;
@@ -362,7 +386,7 @@ impl Mul<&BigInt> for &BigInt {
     type Output = BigInt;
 
     fn mul(self, rhs: &BigInt) -> Self::Output {
-
+        
         let mut temp = self.clone();
         temp *= rhs;
         temp
@@ -465,6 +489,9 @@ mod test {
         num += num.clone();
         assert_eq!(new("800_000_000"), num);
 
+        assert!(num.is_positive());
+        assert!(!num.is_negative());
+
         // create BigInt with x, check if return None.
         let fails = |x| assert_eq!(None, B::new(x));
         // checking failure conditions.
@@ -487,6 +514,21 @@ mod test {
         test_add(153_220, 5);
         // a.len < b.len;
         test_add(42, 1_000_1_264_336);
+        
+        // test with very large numbers.
+        {
+            let x = "9".repeat(111);
+
+            let y = "199999999999999999999\
+            999999999999999999999999999999\
+            999999999999999999999999999999\
+            9999999999999999999999999999998";
+
+            let mut num = BigInt::new(&x).unwrap();
+            num += num.clone();
+
+            assert_eq!(num , BigInt::new(y).unwrap());
+        }
 
         let test_sub = |x, y| {
             let a = fint(x) - fint(y);
@@ -507,15 +549,13 @@ mod test {
         let sh_left = |x, y| {
             let a = fint(x) << fint(y);
             
-            let result = x << y;
-            assert_eq!(fint(result), a);
+            assert_eq!(fint(x << y), a);
         };
 
         let _sh_right = |x, y| {
             let a = fint(x) >> fint(y);
 
-            let result = x >> y;
-            assert_eq!(fint(result), a);
+            assert_eq!(fint(x >> y), a);
         };
 
         sh_left(16, 2);
@@ -534,17 +574,31 @@ mod test {
     #[test]
     fn big_int_mul_and_div() {
         
-        let fint = |x| BigInt::from_int(x);
-        // a.len == b.len.
-        let mut num = fint(424_242);
-        num *= fint(212_121);
-        assert_eq!(fint(89_990_637_282_i64), num);
-        // a.len > b.len.
-        num = fint(2233);
-        num *= fint(3);
-        assert_eq!(fint(6699), num);
+        let fint = |x: i128| BigInt::from_int(x);
 
-    }
+        let multiply = |x, y| {
+            let a = fint(x) * fint(y);
+            assert_eq!(fint(x * y), a);
+        };
+        // a.len == b.len.
+        multiply(424_242, 212_121);
+        // a.len > b.len.
+        multiply(2233, 3);
+        // a.len < b.len 
+        multiply(23, 90212);
+
+        // test large numbers. 
+        let mut num = fint(10i128.pow(30));
+        num *= num.clone();
+        // 10^60.
+        let mut x = "1".to_string();
+        x.push_str(&"0".repeat(60));
+
+        assert_eq!(BigInt::new(&x).unwrap(), num);
+
+
+
+     }
     #[test]
     fn big_int_comp() {
 
@@ -555,11 +609,17 @@ mod test {
         assert_eq!(num, fint(123));
         assert_ne!(num, fint(223));
 
+        assert!(num >= fint(111));
+        assert!(num >= fint(123));
+
         assert!(num > fint(122));
         assert!(num > fint(1));
 
         assert!(num < fint(124));
         assert!(num < fint(2891228));
+
+        assert!(num <= fint(199));
+        assert!(num <= fint(123));
     }
 }
 
