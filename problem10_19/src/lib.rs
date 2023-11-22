@@ -1,5 +1,6 @@
-use library::*;
 use std::time::Instant;
+use std::str::FromStr;
+use bigdecimal::num_bigint::BigUint;
 
 pub mod lib1;
 pub use lib1::*;
@@ -158,17 +159,16 @@ pub fn _13() {
 
     let mut nums = vec![];
     for i in 0..list.len() {
-        nums.push(big_int::new(list[i]));
+        nums.push(BigUint::from_str(list[i]).unwrap());
     }
-
-    let mut sum = big_int::new("0");
+    let mut sum = BigUint::from(0u32);
 
     for i in 0..nums.len() {
-        big_int::add_assign(&mut sum, &nums[i]);
+        //big_int::add_assign(&mut sum, &nums[i]);
+        sum += &nums[i];
     }
-    print!("answer 13: ");
-    big_int::print(&sum, 10); 
-    println!(" T: {:?}", start.elapsed());
+    let x = start.elapsed();
+    print!("answer 13: {0:.10}. T: {x:?}", sum.to_string());
 }
 // in the collatz conjecture
 // Which starting number, under one million, 

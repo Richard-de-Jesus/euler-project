@@ -1,5 +1,5 @@
 use std::time::Instant;
-use library::*;
+use bigdecimal::num_bigint::BigUint;
 // in the collatz conjecture
 // Which starting number, under one million, 
 // produces the longest chain?
@@ -69,14 +69,17 @@ pub fn _15() {
 // 1366
 pub fn _16() {
     let start = Instant::now();
-    let mut num = big_int::new("2");
+    let mut num =  BigUint::from(2u32);
 
     for _ in 2..=1000 {
-        big_int::mul_assign(&mut num , &vec![2]);
+        num *= 2u32;
     }
     let mut sum = 0;
-    for e in num {
-        sum += e as u32;
+    let digits = num.to_str_radix(10);
+
+    for ch in digits.chars() {
+        let x = ch.to_digit(10).unwrap();
+        sum += x;
     }
     let x = start.elapsed();
     println!("answer 16: {sum}. T: {x:?}");

@@ -7,3 +7,5 @@ members = [
     "problem10_19",
     "problem20_29",
 ]
+#[dependecies]
+#bigdecimal = "0.4"

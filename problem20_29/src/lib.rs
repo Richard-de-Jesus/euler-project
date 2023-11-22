@@ -1,5 +1,7 @@
 use std::time::Instant;
 use library::*;
+use bigdecimal::BigDecimal;
+use bigdecimal::num_bigint::BigUint;
 
 pub mod lib1;
 pub use lib1::*;
@@ -7,16 +9,18 @@ pub use lib1::*;
 // 648
 pub fn _20() {
     let start = Instant::now();
-    let mut n = big_int::new("2");
+    let mut n =  BigUint::from(2u32);
 
-    for i in 3..=100 {
-        let x = big_int::new(&i.to_string());
-        big_int::mul_assign(&mut n, &x);
+    for i in 3..=100u32 {
+        n *= i;
     }
 
     let mut sum = 0;
-    for digit in n {
-        sum += (digit) as u16;
+    let digits = n.to_str_radix(10);
+    for dig in digits.chars() {
+
+        let x = dig.to_digit(10).unwrap();
+        sum += x;
     }
     let x = start.elapsed();
     println!("answer 20: {sum}. T: {x:?}");
@@ -170,20 +174,17 @@ pub fn _24() {
 pub fn _25() {
     let start = Instant::now();
     let mut index = 2;
+    
+    let mut x: BigDecimal;
+    let mut y = BigDecimal::from(1);
+    let mut z = y.clone();
 
-    let mut x: Vec<u8>;
-    let mut y = big_int::new("1");
-    let mut z = big_int::new("1");
-
-    while z.len() != 1000 {
-
+    while z.digits() != 1000 {
         x = y.clone();
         y = z.clone();
-        // z = x + y. yeah...
-        z = big_int::add(&x, &y);
+        z = &x + &y;
         index += 1;
     }
     let x = start.elapsed();
     println!("answer 25: {index}. T: {x:?}");
-
 }
