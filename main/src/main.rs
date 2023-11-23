@@ -66,7 +66,9 @@ fn main() {
     let args: Vec<String> = env::args()
         .collect();
 
-    call_fn(&args[1]);
+    for i in 1..args.len() {
+        call_fn(&args[i]);
+    }
 
     /*_1();
     _2();

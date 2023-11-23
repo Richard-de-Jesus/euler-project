@@ -25,4 +25,34 @@ pub mod math {
         }    
         sum
     }
+    // find all primes up to n.
+    pub fn find_primes(n: usize) -> Vec<usize> {
+
+
+        let mut is_prime = vec![true; n * 2];
+        let mut p = 2;
+        let mut i: usize;
+        // sieve of erathosenes.
+        while p * p <= n {
+            if is_prime[p] {
+
+                i = p * p;
+                while i <= n {
+                    is_prime[i] = false;
+                    i += p;
+                }
+            }
+            p += 1;
+        }
+        // pre allocate sqrt of n.
+        let x = (n as f64).sqrt() as usize;
+        let mut primes = Vec::with_capacity(x);
+
+        for i in 2..is_prime.len() {
+            if is_prime[i] {
+                primes.push(i);
+            }
+        }
+        primes
+    }
 }

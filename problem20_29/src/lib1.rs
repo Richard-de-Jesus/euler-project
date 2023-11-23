@@ -1,63 +1,50 @@
 use bigdecimal::BigDecimal;
 
 type Us = usize;
-// returns true if sub-string 
-// of length k starting at index i 
-// is also a prefix of the string 
-fn is_prefix(num: &str, len: Us, mut i: Us, k: Us) -> bool {
-
-    if i + k > len {
-        return false;
-    }
-
-    let num = num.as_bytes();
-    for j in 0..k {
-
-        if num[i] != num[j] {
-            return false;
-        }
-        i += 1;
-    }
-    false
-}
-
 // find the value of d < 1000 for 
 // wich 1 / d contains the largest 
 // recurring cycle in the decimal part.
+// 983
 #[allow(unused)]
 pub fn _26() {
     use BigDecimal as BD;
+    // the 1 / d part.
+    let mut d = 2;
+    // greatest cycle size.
+    let mut max_cyle = 2;
 
-    let mut max = 2;
     const PRECISION: usize = 100;
 
-    let is_cycle = |num: &str, len: Us, k: Us| {
-        let mut idx = k;
-        while idx < len {
-            if !is_prefix(num, len, idx, k) {
-                return false;
-            }
-        }
+    let is_cycle = |num: &[u8], k: Us| {
+
+        dbg!(&num[0..11]);
+        let section = num.chunks_exact(k);
+        dbg!(section.len());
+        
+
         true
     }; 
 
-    for i in 2..10 {
+    'outer: for i in 4..10 {
 
         let unit = (BD::from(1) / i as u32)
             .to_string();
 
-        let decimals = &unit[2..];
+        let decimals = unit[2..].as_bytes();
         if decimals.len() < PRECISION {
             continue;
         }
-        
-        for k in max..= PRECISION / 2 {
 
-            let len = PRECISION - (PRECISION % k);
-            if is_cycle(decimals, len, k) {
-                dbg!(decimals);
-                dbg!(i);
-                max = i;
+        
+        for k in max_cyle..= PRECISION / 2 {
+
+
+            is_cycle(decimals, k);
+            break 'outer;
+
+            if is_cycle(decimals, k) {
+                max_cyle = k;
+                d = i;
             }
             
         }

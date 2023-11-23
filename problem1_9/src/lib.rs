@@ -1,4 +1,6 @@
 use std::time::Instant;
+use library::math;
+use std::hint::black_box;
 // find the sum of all multiples of 3 or 5 
 // that are below 1000.
 // 233168 
@@ -60,8 +62,8 @@ pub fn _4() {
     let start = Instant::now();
     let mut num = 0;
 
-    for i in 900..=999 {
-        for j in 500..=999 {
+    for i in 500..=999 {
+        for j in i..=999 {
             let product = i * j;
 
             //  converting to bytes, 
@@ -89,34 +91,46 @@ pub fn _4() {
 // find smallest number that can be divided 
 // by 1 to 20 without remainder.
 // 232792560
+#[allow(unused)]
 pub fn _5() {
     let start = Instant::now();
-    // starting at 2000 to speed up a bit.
-    let mut n = 2000;
+    // largest divisor.
+    let k = black_box(20usize);
+    // all primes up to k.
+    let primes = math::find_primes(k);
+    // expoents.
+    let mut exp = vec![0u32; primes.len()];
 
-    loop {
-        let mut counter = 0;
+    let limit = (k as f64).sqrt() as usize;
+    
+    let log = |x| f64::log2(x as f64);
 
-        // we skip 1 to 10, cause we can 
-        // multiply them and get 20 or lower.
-        for i in 11..= 20 {
+    let evaluate = |e: &mut Vec<u32>, i| {
+        let p = primes[i];
 
-            if n % i == 0 {
-                counter += 1;
-            } else {
-                 break;
-            }
+        if p <= limit {
+            e[i] = (log(k) / log(p)) as u32;
+            return true;
         }
-        // counter at 10 means that 
-        // all divisions were a sucess.
-        if counter == 10 {
-            break;
-        } else {
-            // add 20, to only check numbers divisible by 20.
-            n += 20;
-        }
+        false
     };
-    println!("answer 5: {n}. T: {:?}", start.elapsed());
+    let mut num = 1;
+
+    let mut idx = 0;
+    let mut check = true;
+
+    while primes[idx] <= k {
+        exp[idx] = 1;
+
+        if check {
+            check = evaluate(&mut exp, idx);
+        }
+        num = num * primes[idx].pow(exp[idx]); 
+        idx += 1;
+    }
+
+    let x = start.elapsed();
+    println!("answer 5: {num}. T: {x:?}");
 }
 // Find the difference between the sum 
 // of the squares of the first 100 natural 
