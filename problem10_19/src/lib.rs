@@ -1,5 +1,8 @@
 use std::time::Instant;
 use std::str::FromStr;
+use std::hint::black_box;
+
+use library::math;
 use bigdecimal::num_bigint::BigUint;
 
 pub mod lib1;
@@ -116,16 +119,67 @@ pub fn _11() {
 // what is the value of the 1st triangle 
 // number to have over 500 divisors.
 // 76576500
+#[allow(unused)]
 pub fn _12() {
     let start = Instant::now();
+    // highest prime bound.
+    let p =  black_box(1000);
+    // divisors required by problem.
+    let divisors = black_box(500);
 
+    // starts with prime.
+    let mut n = 3; 
+    // number of divisors of prime.
+    let mut dn = 2; 
+    let mut count = 0;
+
+    let (mut n1, mut dn1) = (0, 0);
+    let mut expoent = 0;
+
+    let prime_arr = math::find_primes(p);
+    
+    while count <= divisors {
+        n += 1;
+        n1 = n;
+
+        if n1 & 1 == 0 {
+            n1 /= 2;
+        }
+        dn1 = 1;
+
+        for i in 0..p {
+
+            let prime_i = prime_arr[i];
+
+            if prime_i * prime_i > n1 {
+                dn1 *= 2;
+                break;
+            }
+            expoent = 1;
+
+            while n1 % prime_i == 0 {
+                expoent += 1;
+                n1 /= prime_i;
+            }
+            if expoent > 1 {
+                dn1 *= expoent;
+            }
+            if n1 == 1 { break; }
+        }
+        count = dn * dn1;
+        dn = dn1;
+    }
+    let triangle = n * (n - 1) / 2;
+    let x = start.elapsed();
+    println!("answer 12: {triangle}. T: {x:?}");
+
+    /*
     let mut num: usize;
     let mut i = 1usize;
     let x = loop {
-        num = 0;
-        for j in 1..=i {
-            num += j;
-        }
+
+        num = i * (i+1) / 2;
+
         let mut idx = 2;
         let initial_num = num;
         let mut num_factors = 1;
@@ -147,6 +201,7 @@ pub fn _12() {
         i += 1;
     };
     println!("answer 12: {x}. T: {:?}", start.elapsed());
+    */
 }
 // find the 1st 10 digits of the sum 
 // of the 100 50-digit numbers.
@@ -168,7 +223,7 @@ pub fn _13() {
         sum += &nums[i];
     }
     let x = start.elapsed();
-    print!("answer 13: {0:.10}. T: {x:?}", sum.to_string());
+    println!("answer 13: {0:.10}. T: {x:?}", sum.to_string());
 }
 // in the collatz conjecture
 // Which starting number, under one million, 
