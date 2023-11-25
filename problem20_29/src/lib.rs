@@ -1,3 +1,4 @@
+use std::hint::black_box;
 use std::time::Instant;
 use library::*;
 use bigdecimal::BigDecimal;
@@ -131,6 +132,9 @@ pub fn _23() {
 //  2783915460
 pub fn _24() {
     type Us = usize;
+
+    let permutation = black_box(1_000_000);
+
     let start = Instant::now();
 
     let mut digits = [0, 1, 2, 
@@ -138,15 +142,15 @@ pub fn _24() {
 
     const LEN: Us = 10;
 
-    for _ in 1..=1_000_000 {
+    for _ in 1..=permutation {
 
         let mut idx_k = 42;
         for k in 0..LEN - 1 {
+            
             if digits[k] < digits[k+1] {
                 idx_k = k;
             }
         }
-
 
         let mut idx_l = 42;
         for l in idx_k..LEN {

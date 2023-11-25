@@ -28,7 +28,6 @@ pub mod math {
     // find all primes up to n.
     pub fn find_primes(n: usize) -> Vec<usize> {
 
-
         let mut is_prime = vec![true; n * 2];
         let mut p = 2;
         let mut i: usize;
@@ -54,5 +53,29 @@ pub mod math {
             }
         }
         primes
+    }
+    // check if n is prime. only valid for 
+    // n larger than 3.
+    pub fn is_prime(n: usize) -> bool {
+        if n & 1 == 0 {
+            return false;
+        }
+        if n % 3 == 0 {
+            return false;
+        }
+
+        let r = (n as f64).sqrt() as usize;
+        let mut f = 5;
+
+        while f <= r {
+            if n % f == 0 {
+                return false;
+            }
+            if n % (f + 2) == 0 {
+                return false;
+            }
+            f += 6;
+        }
+        true
     }
 }
