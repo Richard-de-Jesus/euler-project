@@ -17,19 +17,20 @@ pub fn _14() {
 
         let mut x = i;
         while x != 1 {
+
             if x < HI && cache[x] != 0 {
                 count += cache[x];
                 break;
             }
             // check if is even.
             if x & 1 == 0 {
-                x /= 2;
+                x >>= 1;
                 count += 1;
             } else {
                 x *= 3;
                 x += 1;
                 // when n is odd, 3n + 1 is always even.
-                x /= 2;
+                x >>= 2;
                 count += 2;
             }
         }
@@ -42,6 +43,7 @@ pub fn _14() {
         count = 0;
     }
     let x = start.elapsed();
+    println!("jsiajsoiasji");
     println!("answer 14: {num}. T: {x:?}");
 }
 // how many lattice path are there 

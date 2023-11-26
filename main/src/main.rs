@@ -1,8 +1,6 @@
 
 use std::env;
 
-
-
 fn call_fn(arg: &str) {
 
     match arg {
